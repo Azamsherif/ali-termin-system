@@ -1,0 +1,18 @@
+{
+  "app": "Ali Termin System",
+  "login": "Connexion",
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "dashboard": "Tableau de bord",
+  "appointments": "Rendez-vous",
+  "messages": "Messages",
+  "failed": "Échec",
+  "logout": "Déconnexion",
+  "create": "Créer",
+  "exportAppointments": "Exporter les rendez-vous (Excel)",
+  "exportMessages": "Exporter les messages (Excel)",
+  "status": "Statut",
+  "channel": "Canal",
+  "resend": "Renvoyer",
+  "settings": "Paramètres"
+}

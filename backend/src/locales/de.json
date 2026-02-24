@@ -1,0 +1,7 @@
+{
+  "reminder_24": "Erinnerung: Sie haben morgen um {{time}} Uhr einen Termin bei {{company}}. {{cancel}}",
+  "reminder_2": "Erinnerung: Ihr Termin beginnt in 2 Stunden ({{time}} Uhr) bei {{company}}.",
+  "cancel_success": "Ihr Termin wurde erfolgreich storniert.",
+  "cancel_already": "Dieser Termin wurde bereits storniert.",
+  "cancel_invalid": "Ungültiger Link."
+}

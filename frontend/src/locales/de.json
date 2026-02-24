@@ -1,0 +1,18 @@
+{
+  "app": "Ali Termin System",
+  "login": "Anmelden",
+  "email": "E-Mail",
+  "password": "Passwort",
+  "dashboard": "Dashboard",
+  "appointments": "Termine",
+  "messages": "Nachrichten",
+  "failed": "Fehlgeschlagen",
+  "logout": "Abmelden",
+  "create": "Erstellen",
+  "exportAppointments": "Termine exportieren (Excel)",
+  "exportMessages": "Nachrichten exportieren (Excel)",
+  "status": "Status",
+  "channel": "Kanal",
+  "resend": "Erneut senden",
+  "settings": "Einstellungen"
+}

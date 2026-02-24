@@ -1,0 +1,7 @@
+{
+  "reminder_24": "Promemoria: Hai un appuntamento domani alle {{time}} presso {{company}}. {{cancel}}",
+  "reminder_2": "Promemoria: Il tuo appuntamento inizia tra 2 ore ({{time}}) presso {{company}}.",
+  "cancel_success": "Il tuo appuntamento è stato annullato con successo.",
+  "cancel_already": "Questo appuntamento è già stato annullato.",
+  "cancel_invalid": "Link non valido."
+}

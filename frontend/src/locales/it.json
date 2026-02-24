@@ -1,0 +1,18 @@
+{
+  "app": "Ali Termin System",
+  "login": "Accedi",
+  "email": "Email",
+  "password": "Password",
+  "dashboard": "Cruscotto",
+  "appointments": "Appuntamenti",
+  "messages": "Messaggi",
+  "failed": "Fallito",
+  "logout": "Esci",
+  "create": "Crea",
+  "exportAppointments": "Esporta appuntamenti (Excel)",
+  "exportMessages": "Esporta messaggi (Excel)",
+  "status": "Stato",
+  "channel": "Canale",
+  "resend": "Invia di nuovo",
+  "settings": "Impostazioni"
+}

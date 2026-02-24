@@ -1,0 +1,7 @@
+{
+  "reminder_24": "Rappel : Vous avez un rendez-vous demain à {{time}} chez {{company}}. {{cancel}}",
+  "reminder_2": "Rappel : Votre rendez-vous commence dans 2 heures ({{time}}) chez {{company}}.",
+  "cancel_success": "Votre rendez-vous a été annulé avec succès.",
+  "cancel_already": "Ce rendez-vous est déjà annulé.",
+  "cancel_invalid": "Lien invalide."
+}
