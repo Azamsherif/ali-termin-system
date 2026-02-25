@@ -71,8 +71,23 @@ export default function Messages() {
     }
   };
 
-  const exportExcel = () => {
-    window.open((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + "/api/messages/export/messages", "_blank");
+  const exportExcel = async () => {
+    try {
+      const response = await API.get("/api/messages/export/messages", {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'messages.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to export messages");
+    }
   };
 
   const getStatusIcon = (status) => {
