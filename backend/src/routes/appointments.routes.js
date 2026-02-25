@@ -4,15 +4,19 @@ const auth = require("../middleware/auth");
 const { getPool } = require("../config/db");
 
 const router = express.Router();
+
+// All routes require authentication
 router.use(auth);
 
+// Validation schema for creating appointments
 const AppointmentCreate = z.object({
   client_name: z.string().min(1),
   phone: z.string().min(5),
   client_language: z.enum(["de","fr","it"]).default("de"),
-  appointment_datetime: z.string().min(10), // "YYYY-MM-DD HH:mm:ss" or ISO string
+  appointment_datetime: z.string().min(10),
 });
 
+// POST /api/appointments - Create new appointment
 router.post("/", async (req, res) => {
   const parsed = AppointmentCreate.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: "Invalid input", errors: parsed.error.flatten() });
@@ -35,6 +39,7 @@ router.post("/", async (req, res) => {
   res.json({ message: "Created", id: result.insertId });
 });
 
+// GET /api/appointments - Get appointments with optional filters
 router.get("/", async (req, res) => {
   const { from, to, status } = req.query;
   const pool = getPool();
@@ -42,6 +47,7 @@ router.get("/", async (req, res) => {
   let sql = "SELECT * FROM appointments WHERE user_id=:user_id";
   const params = { user_id: req.user.id };
 
+  // Apply filters
   if (status) {
     sql += " AND status=:status";
     params.status = status;
@@ -58,6 +64,7 @@ router.get("/", async (req, res) => {
   res.json(rows);
 });
 
+// Validation schema for updating appointments
 const AppointmentUpdate = z.object({
   client_name: z.string().min(1).optional(),
   phone: z.string().min(5).optional(),
@@ -66,6 +73,7 @@ const AppointmentUpdate = z.object({
   status: z.enum(["confirmed","cancelled"]).optional(),
 });
 
+// PUT /api/appointments/:id - Update appointment
 router.put("/:id", async (req, res) => {
   const parsed = AppointmentUpdate.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: "Invalid input" });
@@ -77,6 +85,7 @@ router.put("/:id", async (req, res) => {
   const fields = [];
   const params = { id, user_id: req.user.id };
 
+  // Build dynamic UPDATE query
   for (const [k,v] of Object.entries(updates)) {
     fields.push(`${k}=:${k}`);
     params[k] = k === "appointment_datetime" ? String(v).replace("T"," ").slice(0,19) : v;
@@ -90,6 +99,7 @@ router.put("/:id", async (req, res) => {
   res.json({ message: "Updated" });
 });
 
+// DELETE /api/appointments/:id - Delete appointment
 router.delete("/:id", async (req, res) => {
   const pool = getPool();
   const id = Number(req.params.id);

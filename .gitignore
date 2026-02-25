@@ -1,0 +1,26 @@
+# Root gitignore
+
+# Database
+*.db
+*.sqlite
+
+# Environment
+.env
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/

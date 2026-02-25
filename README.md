@@ -1,53 +1,202 @@
-# Ali Termin System (SaaS) — Ready-to-run ZIP
+# Ali Termin System
 
-This ZIP contains:
-- **backend/** Node.js (Express) + MySQL + JWT + Cron (24h & 2h reminders) + Retry + i18n (DE/FR/IT) + Twilio SMS/WhatsApp
-- **frontend/** React Admin UI (Vite) + i18n (DE/FR/IT)
+**Appointment Reminder System with Multi-Language Support**
 
-## 1) Requirements
-- Ubuntu 22.04 (or similar)
-- Node.js 18+ (recommended)
-- MySQL 8+
-- (optional) PM2, Nginx
+A complete SaaS solution for managing appointments with automated SMS/WhatsApp reminders.
 
-## 2) Database
-Create DB and user, then import schema:
+## Features
 
-```bash
-mysql -u root -p
-CREATE DATABASE ali_termin_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'ali_user'@'localhost' IDENTIFIED BY 'strongpassword';
-GRANT ALL PRIVILEGES ON ali_termin_system.* TO 'ali_user'@'localhost';
-FLUSH PRIVILEGES;
-exit
-```
+- ✅ **Multi-tenant System** - Each company has their own isolated data
+- 📅 **Appointment Management** - Create, update, and track appointments
+- 📱 **Automated Reminders** - 24h and 2h reminders via SMS or WhatsApp
+- 🌍 **Multi-Language** - German, French, Italian support
+- 🔄 **Retry Mechanism** - Automatic retry for failed messages
+- 📊 **Message Logs** - Track all sent messages and delivery status
+- 📥 **Excel Export** - Export appointments and message logs
+- 🎨 **Modern UI** - React + Material-UI with dark/light mode
+- 🔐 **Secure** - JWT authentication, bcrypt password hashing
 
-Import:
-```bash
-mysql -u ali_user -p ali_termin_system < backend/sql/schema.sql
-```
+## Tech Stack
 
-## 3) Backend setup
+### Backend
+- Node.js + Express
+- SQLite database
+- Twilio for SMS/WhatsApp
+- node-cron for automated tasks
+- JWT authentication
+- Zod validation
+
+### Frontend
+- React 18
+- Vite
+- Material-UI (MUI)
+- i18next for translations
+- Axios for API calls
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### 1. Backend Setup
+
 ```bash
 cd backend
-cp .env.example .env
 npm install
-npm run start
+
+# Copy environment file
+cp .env.example .env
+
+# Edit .env and add your Twilio credentials
+# Set MOCK_MESSAGING=true for testing without Twilio
+
+# Start backend
+npm start
 ```
 
-### Notes
-- Set `MOCK_MESSAGING=true` if you want to test without sending real SMS/WhatsApp.
-- Set timezone to Switzerland via `APP_TIMEZONE=Europe/Zurich` (default is Europe/Zurich).
+Backend runs on `http://localhost:5000`
 
-## 4) Frontend setup
+### 2. Frontend Setup
+
 ```bash
-cd ../frontend
-cp .env.example .env
+cd frontend
 npm install
+
+# Copy environment file (optional)
+cp .env.example .env
+
+# Start development server
 npm run dev
 ```
 
-Build for production:
+Frontend runs on `http://localhost:5173`
+
+### 3. Test Twilio Integration (Optional)
+
+```bash
+cd backend
+node test-twilio.js
+```
+
+## Environment Variables
+
+### Backend (.env)
+
+```env
+# Database (SQLite - auto-created)
+DB_PATH=./database.db
+
+# JWT
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRE=12h
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Twilio
+TWILIO_ACCOUNT_SID=your_account_sid
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_SMS_FROM=+41XXXXXXXXX
+TWILIO_WHATSAPP_FROM=whatsapp:+41XXXXXXXXX
+MOCK_MESSAGING=true
+
+# Application
+APP_TIMEZONE=Europe/Zurich
+PUBLIC_BASE_URL=http://localhost:5000
+```
+
+### Frontend (.env)
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+## Deployment
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed cPanel deployment instructions.
+
+## Project Structure
+
+```
+ali-termin-system/
+├── backend/
+│   ├── src/
+│   │   ├── config/        # Database configuration
+│   │   ├── cron/          # Automated reminder jobs
+│   │   ├── locales/       # Translation files (DE/FR/IT)
+│   │   ├── middleware/    # JWT authentication
+│   │   ├── routes/        # API endpoints
+│   │   ├── services/      # Twilio, translations
+│   │   ├── utils/         # Time utilities
+│   │   └── server.js      # Express app entry
+│   ├── test-twilio.js     # Twilio test script
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── locales/       # Frontend translations
+│   │   ├── pages/         # App pages
+│   │   ├── api.js         # Axios configuration
+│   │   ├── i18n.js        # i18next setup
+│   │   ├── App.jsx        # Main app component
+│   │   └── main.jsx       # Entry point
+│   ├── index.html
+│   └── package.json
+│
+└── README.md
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Login and get JWT token
+
+### Appointments (Protected)
+- `GET /api/appointments` - List appointments
+- `POST /api/appointments` - Create appointment
+- `PUT /api/appointments/:id` - Update appointment
+- `DELETE /api/appointments/:id` - Delete appointment
+
+### Messages (Protected)
+- `GET /api/messages` - List message logs
+- `POST /api/messages/resend/:id` - Retry failed message
+- `GET /api/messages/export/appointments` - Export appointments as Excel
+- `GET /api/messages/export/messages` - Export messages as Excel
+
+### Public
+- `GET /cancel/:id` - Public appointment cancellation link
+- `GET /health` - Health check endpoint
+
+## Cron Jobs
+
+- **Reminder Cron** (every 5 minutes): Checks appointments and sends 24h/2h reminders
+- **Retry Cron** (every 15 minutes): Retries failed messages (max 5 attempts)
+
+## Development
+
+### Run Backend in Development
+```bash
+cd backend
+npm run dev  # with nodemon auto-reload
+```
+
+### Build Frontend for Production
+```bash
+cd frontend
+npm run build
+```
+
+## License
+
+Private - All rights reserved
+
+## Support
+
+For issues or questions, contact the development team.
 ```bash
 npm run build
 ```

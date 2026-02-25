@@ -1,11 +1,12 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const { runQuery } = require("../config/db");
 
 const router = express.Router();
 
+// Validation schema for registration
 const RegisterSchema = z.object({
   company_name: z.string().min(2),
   email: z.string().email(),
@@ -13,6 +14,7 @@ const RegisterSchema = z.object({
   plan: z.enum(["starter","pro","business"]).optional(),
 });
 
+// POST /api/auth/register - Create new user account
 router.post("/register", async (req, res) => {
   const parsed = RegisterSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: "Invalid input", errors: parsed.error.flatten() });
@@ -35,11 +37,13 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// Validation schema for login
 const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
 
+// POST /api/auth/login - Authenticate user and return JWT
 router.post("/login", async (req, res) => {
   const parsed = LoginSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: "Invalid input" });
@@ -54,6 +58,7 @@ router.post("/login", async (req, res) => {
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return res.status(401).json({ message: "Invalid credentials" });
 
+    // Generate JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET || "fallback_secret",

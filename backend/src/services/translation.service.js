@@ -3,6 +3,7 @@ const path = require("path");
 
 const cache = new Map();
 
+// Load translation file for specified language (de, fr, it)
 function getTranslation(lang) {
   const safe = (lang || "de").toLowerCase();
   const key = ["de", "fr", "it"].includes(safe) ? safe : "de";
@@ -15,6 +16,7 @@ function getTranslation(lang) {
   return data;
 }
 
+// Replace template placeholders like {{time}}, {{company}} with actual values
 function render(template, vars) {
   let out = template;
   for (const [k, v] of Object.entries(vars)) {

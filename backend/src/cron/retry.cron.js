@@ -3,10 +3,12 @@ const { getPool } = require("../config/db");
 const { sendSMS, sendWhatsApp } = require("../services/messaging.service");
 const { nowTz } = require("../utils/time");
 
+// Retry failed messages (runs every 15 minutes)
 async function runOnce() {
   const pool = getPool();
   const now = nowTz();
 
+  // Find failed messages ready for retry (max 5 attempts)
   const [rows] = await pool.execute(
     `SELECT * FROM message_logs 
      WHERE status='failed' 
@@ -19,10 +21,12 @@ async function runOnce() {
 
   for (const msg of rows) {
     try {
+      // Resend message via appropriate channel
       let resp;
       if (msg.channel === "whatsapp") resp = await sendWhatsApp(msg.phone, msg.message);
       else resp = await sendSMS(msg.phone, msg.message);
 
+      // Mark as sent on success
       await pool.execute(
         `UPDATE message_logs 
          SET status='sent', provider_id=:provider_id, error_text=NULL, attempts=attempts+1, next_retry_at=NULL
@@ -30,6 +34,7 @@ async function runOnce() {
         { id: msg.id, provider_id: resp.sid }
       );
     } catch (e) {
+      // Schedule next retry in 15 minutes
       const attempts = (msg.attempts || 0) + 1;
       const next = now.add(15, "minute").format("YYYY-MM-DD HH:mm:ss");
       await pool.execute(
@@ -42,10 +47,12 @@ async function runOnce() {
   }
 }
 
+// Start retry cron job
 function startRetryCron() {
   cron.schedule("*/15 * * * *", () => {
-    runOnce().catch((e) => console.error("retry.cron error:", e));
+    runOnce().catch((e) => console.error("[Retry Cron Error]:", e));
   });
+  console.log("⚙️ Retry cron started (every 15 minutes)");
 }
 
 module.exports = { startRetryCron, runOnce };

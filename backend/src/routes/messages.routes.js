@@ -5,8 +5,11 @@ const { getPool } = require("../config/db");
 const { sendSMS, sendWhatsApp } = require("../services/messaging.service");
 
 const router = express.Router();
+
+// All routes require authentication
 router.use(auth);
 
+// GET /api/messages - Get message logs with optional filters
 router.get("/", async (req, res) => {
   const { status, channel } = req.query;
   const pool = getPool();
@@ -14,6 +17,7 @@ router.get("/", async (req, res) => {
   let sql = "SELECT * FROM message_logs WHERE user_id=:user_id";
   const params = { user_id: req.user.id };
 
+  // Apply filters
   if (status) { sql += " AND status=:status"; params.status = status; }
   if (channel) { sql += " AND channel=:channel"; params.channel = channel; }
 
@@ -23,6 +27,7 @@ router.get("/", async (req, res) => {
   res.json(rows);
 });
 
+// POST /api/messages/resend/:id - Retry sending a failed message
 router.post("/resend/:id", async (req, res) => {
   const pool = getPool();
   const id = Number(req.params.id);
@@ -36,16 +41,19 @@ router.post("/resend/:id", async (req, res) => {
   const msg = rows[0];
 
   try {
+    // Resend via appropriate channel
     const resp = msg.channel === "whatsapp"
       ? await sendWhatsApp(msg.phone, msg.message)
       : await sendSMS(msg.phone, msg.message);
 
+    // Update as sent
     await pool.execute(
       "UPDATE message_logs SET status='sent', provider_id=:provider_id, error_text=NULL, attempts=attempts+1, next_retry_at=NULL WHERE id=:id",
       { id, provider_id: resp.sid }
     );
     res.json({ message: "Resent" });
   } catch (e) {
+    // Update with new error
     await pool.execute(
       "UPDATE message_logs SET status='failed', error_text=:err, attempts=attempts+1, next_retry_at=DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id=:id",
       { id, err: String(e?.message || e) }
@@ -54,6 +62,7 @@ router.post("/resend/:id", async (req, res) => {
   }
 });
 
+// GET /api/messages/export/appointments - Export appointments as Excel
 router.get("/export/appointments", async (req, res) => {
   const pool = getPool();
   const [rows] = await pool.execute(
@@ -84,6 +93,7 @@ router.get("/export/appointments", async (req, res) => {
   res.end();
 });
 
+// GET /api/messages/export/messages - Export message logs as Excel
 router.get("/export/messages", async (req, res) => {
   const pool = getPool();
   const [rows] = await pool.execute(

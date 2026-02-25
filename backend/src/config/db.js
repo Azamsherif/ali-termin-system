@@ -3,15 +3,16 @@ const path = require("path");
 
 let db;
 
+// Initialize SQLite database with required tables
 function getDB() {
   if (db) return db;
   
   const dbPath = path.join(__dirname, "../../database.db");
   db = new sqlite3.Database(dbPath);
   
-  // إنشاء الجداول إذا لم تكن موجودة
+  // Create tables if they don't exist
   db.serialize(() => {
-    // جدول المستخدمين
+    // Users table
     db.run(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       company_name TEXT NOT NULL,
@@ -23,7 +24,7 @@ function getDB() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
-    // جدول المواعيد
+    // Appointments table
     db.run(`CREATE TABLE IF NOT EXISTS appointments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
@@ -38,7 +39,7 @@ function getDB() {
       FOREIGN KEY (user_id) REFERENCES users(id)
     )`);
     
-    // جدول الرسائل
+    // Message logs table
     db.run(`CREATE TABLE IF NOT EXISTS message_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
@@ -62,21 +63,21 @@ function getDB() {
   return db;
 }
 
-// وظائف مساعدة لمحاكاة MySQL syntax
+// Execute query with named parameters (converts to SQLite format)
 function runQuery(query, params = {}) {
   return new Promise((resolve, reject) => {
     const db = getDB();
     
-    // تحويل named parameters إلى array parameters لـ SQLite
+    // Convert named parameters (:param) to positional (?) for SQLite
     let sqliteQuery = query;
     const paramArray = [];
     
-    // استبدال :param بـ ?
     sqliteQuery = sqliteQuery.replace(/:(\w+)/g, (match, paramName) => {
       paramArray.push(params[paramName]);
       return '?';
     });
     
+    // Handle SELECT vs INSERT/UPDATE/DELETE
     if (query.trim().toUpperCase().startsWith('SELECT')) {
       db.all(sqliteQuery, paramArray, (err, rows) => {
         if (err) reject(err);
@@ -91,7 +92,7 @@ function runQuery(query, params = {}) {
   });
 }
 
-// إنشاء كائن يحاكي MySQL pool للتوافق مع الخلف
+// Create MySQL-compatible pool interface
 function getPool() {
   return {
     execute: runQuery

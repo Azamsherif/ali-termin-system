@@ -1,0 +1,4 @@
+PassengerEnabled On
+PassengerAppType node
+PassengerStartupFile src/server.js
+PassengerAppRoot /home/your_cpanel_username/ali-termin-system-backend
