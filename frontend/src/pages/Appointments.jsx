@@ -22,7 +22,7 @@ import {
   CardContent,
   Divider
 } from "@mui/material";
-import { Add, FileDownload, Event, Phone, Language, Schedule } from "@mui/icons-material";
+import { Add, FileDownload, Event, Phone, Language, Schedule, Delete } from "@mui/icons-material";
 
 export default function Appointments() {
   const { t } = useTranslation();
@@ -86,6 +86,20 @@ export default function Appointments() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to export appointments");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this appointment?")) {
+      return;
+    }
+    
+    try {
+      await API.delete(`/api/appointments/${id}`);
+      setSuccess("Appointment deleted successfully!");
+      await load();
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to delete appointment");
     }
   };
 
@@ -297,6 +311,7 @@ export default function Appointments() {
                   <TableCell>Language</TableCell>
                   <TableCell>Date & Time</TableCell>
                   <TableCell>Status</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -380,11 +395,34 @@ export default function Appointments() {
                         }}
                       />
                     </TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        startIcon={<Delete />}
+                        onClick={() => handleDelete(row.id)}
+                        sx={{
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          borderWidth: 1.5,
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            borderWidth: 2,
+                            backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
                 {!rows.length && !loading && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                       <Typography variant="body1">No appointments found</Typography>
                       <Typography variant="body2">Create your first appointment using the form above</Typography>
                     </TableCell>

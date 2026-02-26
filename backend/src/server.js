@@ -7,6 +7,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth.routes");
 const appointmentsRoutes = require("./routes/appointments.routes");
 const messagesRoutes = require("./routes/messages.routes");
+const settingsRoutes = require("./routes/settings.routes");
 const publicRoutes = require("./routes/public.routes");
 
 // Import cron jobs
@@ -26,6 +27,7 @@ app.get("/health", (req, res) => res.json({ ok: true, name: "Ali Termin System A
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/messages", messagesRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Public routes (appointment cancellation)
 app.use("/", publicRoutes);

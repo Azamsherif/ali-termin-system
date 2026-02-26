@@ -119,6 +119,44 @@ export default function Settings() {
     }
   };
 
+  const handleTestSMS = async () => {
+    setSaving(true);
+    setMessage('');
+    setError('');
+    
+    try {
+      const API = (await import('../api.js')).default;
+      const response = await API.post('/api/settings/test-sms', {
+        phone: '+201007240656' // Default test phone number
+      });
+      
+      setMessage(response.data.message || '✅ Test SMS erfolgreich gesendet!');
+    } catch (err) {
+      setError(err?.response?.data?.message || '❌ Fehler beim SMS-Versand');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestWhatsApp = async () => {
+    setSaving(true);
+    setMessage('');
+    setError('');
+    
+    try {
+      const API = (await import('../api.js')).default;
+      const response = await API.post('/api/settings/test-whatsapp', {
+        phone: '+201007240656' // Default test phone number
+      });
+      
+      setMessage(response.data.message || '✅ Test WhatsApp erfolgreich gesendet!');
+    } catch (err) {
+      setError(err?.response?.data?.message || '❌ Fehler beim WhatsApp-Versand');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -492,14 +530,18 @@ export default function Settings() {
                     <Button 
                       variant="outlined" 
                       startIcon={<Sms />}
+                      onClick={handleTestSMS}
+                      disabled={saving}
                       fullWidth
                     >
-                      SMS Test senden
+                      💬 SMS Test senden
                     </Button>
                     
                     <Button 
                       variant="outlined" 
                       startIcon={<WhatsApp />}
+                      onClick={handleTestWhatsApp}
+                      disabled={saving}
                       fullWidth
                     >
                       WhatsApp Test senden
